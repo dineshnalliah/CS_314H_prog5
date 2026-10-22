@@ -17,8 +17,6 @@ public class Main {
 
             char[][] b = x.getBoard();
 
-            System.out.println(dictionary.isPrefix("k"));
-
             for (char[] c : b) {
                 System.out.println(Arrays.toString(c));
             }

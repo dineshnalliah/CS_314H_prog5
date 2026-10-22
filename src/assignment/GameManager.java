@@ -33,7 +33,7 @@ public class GameManager implements BoggleGame {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
                 boolean[][] visited = new boolean[board.length][board.length];
-                dfs(i, j, words, "", visited);
+                findAll(i, j, words, "", visited);
             }
         }
         return words;
@@ -41,7 +41,7 @@ public class GameManager implements BoggleGame {
 
 
 
-    private void dfs(int i, int j, Set<String> words, String word, boolean[][] visited) {
+    private void findAll(int i, int j, Set<String> words, String word, boolean[][] visited) {
 
         if (i < 0 || i >= board.length || j < 0 || j >= board.length) return;
         if (visited[i][j]) return;
@@ -53,8 +53,18 @@ public class GameManager implements BoggleGame {
 
         visited[i][j] = true;
         for (int d = 0; d < 8; d++) {
-            dfs(i + ROW_OFFSETS[d], j + COL_OFFSETS[d], words, word, visited);
+            findAll(i + ROW_OFFSETS[d], j + COL_OFFSETS[d], words, word, visited);
         }
+        visited[i][j] = false; // <- we were missing this :( 
+        /* lets take the case where we start at y in the top left, and it searches right first to get yw, now w has been marked
+           visited. This is fine for this depth, if we look at the instance where y goes to ya first and then checks yaw, it 
+           registers yaw as not valid because w was visited. essentially the issue is that the for a search starting at some node, 
+           every character can only be used once for every possible path combined, which is problematic */
+
+        /* there is a nuance between a dfs algorithm and a backtracking algorithm, i realized this after googling a general
+           recursive find all paths algorithm. if you're curious, search up dfs vs backtracking on google or ai
+           
+           thus, i changed the name of the method to findAll rather than dfs*/ 
     }
 
     @Override
