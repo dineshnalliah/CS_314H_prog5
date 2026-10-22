@@ -8,8 +8,19 @@ public class GameManager implements BoggleGame {
 
     private char[][] board;
     private int numPlayers;
-    private String cubeFile;
     private BoggleDictionary dict;
+    private Set<String> words;
+
+    public final char[][] test = {
+        {'y', 'w', 'e', 's'},
+        {'a', 't', 'w', 'i'},
+        {'k', 'i', 'p' ,'i'},
+        {'v', 'z', 'q', 'j'}
+    };
+
+    private final int[] ROW_OFFSETS = {-1, -1, -1, 0, 0, 1, 1, 1};
+    private final int[] COL_OFFSETS = {-1, 0, 1, -1, 1, -1, 0, 1};
+
 
     @Override
     public int addWord(String word, int player) {
@@ -19,28 +30,35 @@ public class GameManager implements BoggleGame {
 
     @Override
     public Collection<String> getAllWords() {
-        // TODO - implement me!
-        return null;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                boolean[][] visited = new boolean[board.length][board.length];
+                dfs(i, j, words, "", visited);
+            }
+        }
+        return words;
+    }
+
+
+
+    private void dfs(int i, int j, Set<String> words, String word, boolean[][] visited) {
+
+        if (i < 0 || i >= board.length || j < 0 || j >= board.length) return;
+        if (visited[i][j]) return;
+
+        word += board[i][j];
+
+        if (dict.contains(word) && word.length() >= 4) words.add(word);
+        if (!dict.isPrefix(word)) return;
+
+        visited[i][j] = true;
+        for (int d = 0; d < 8; d++) {
+            dfs(i + ROW_OFFSETS[d], j + COL_OFFSETS[d], words, word, visited);
+        }
     }
 
     @Override
     public char[][] getBoard() {
-        try {
-            Scanner scan = new Scanner(new File("cubes.txt"));
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                    String s = scan.nextLine();
-                    System.out.println(s);
-                    int index = (int)(Math.random() * 6);
-                    board[i][j] = s.charAt(index);
-                    System.out.println(board[i][j]);
-                }
-            }
-             scan.close();
-        }
-        catch (FileNotFoundException e) {
-
-        }
         return board;
     }
 
@@ -58,27 +76,20 @@ public class GameManager implements BoggleGame {
 
     @Override
     public void newGame(int size, int numPlayers, String cubeFile, BoggleDictionary dict) throws IOException {
-        board = new char[size][size];
-        try {
-            Scanner scan = new Scanner(new File(cubeFile));
-            for (int i = 0; i < size; i++) {
-                for (int j = 0; j < size; j++) {
-                    String s = scan.nextLine();
-                    System.out.println(s);
-                    int index = (int)(Math.random() * 6);
-                    board[i][j] = s.charAt(index);
-                    System.out.println(board[i][j]);
-                }
+        this.board = new char[size][size];
+        Scanner scan = new Scanner(new File(cubeFile));
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                String s = scan.nextLine().toLowerCase();
+                int index = (int)(Math.random() * 6);
+                board[i][j] = s.charAt(index);
             }
-            scan.close();
         }
-        catch (FileNotFoundException e) {
-            System.out.println("File not found");
-        }
+        scan.close();
 
         this.numPlayers = numPlayers;
-        this.cubeFile = cubeFile;
         this.dict = dict;
+        this.words = new HashSet<>();
     }
 
     @Override

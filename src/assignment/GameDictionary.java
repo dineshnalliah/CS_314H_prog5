@@ -10,32 +10,33 @@ public class GameDictionary implements BoggleDictionary {
 
     @Override
     public boolean contains(String word) {
-        // TODO - implement me!
-        return false;
+        return dictionary.search(word);
     }
 
     @Override
     public boolean isPrefix(String prefix) {
-        // TODO - implement me!
-        return false;
+        return dictionary.startsWith(prefix);
     }
 
     @Override
     public void loadDictionary(String filename) throws IOException {
+        dictionary = new Trie();
         try {
             Scanner in = new Scanner(new File(filename));
-            
+            while (in.hasNext()) {
+                dictionary.insert(in.next().toLowerCase());
+            }
+            in.close();
         }
         catch (FileNotFoundException e) {
-            
+            System.out.println("file not found");
         }
 
     }
 
     @Override
     public Iterator<String> iterator() {
-        // TODO - implement me!
-        return null;
+        return new DictIterator(dictionary.getRoot());
     }
 
     private class DictIterator implements Iterator<String> {
@@ -118,11 +119,6 @@ public class GameDictionary implements BoggleDictionary {
             String s = nextWord;
             advance();
             return s;
-        }
-
-        // Optional: Implement if your collection supports inline item removal
-        @Override
-        public void remove() {
         }
     }
 

@@ -60,4 +60,8 @@ public class Trie {
         return true;
     }
 
+    public Node getRoot() {
+        return root;
+    }
+
 }
