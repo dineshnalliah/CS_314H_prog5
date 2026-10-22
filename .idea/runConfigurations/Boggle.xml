@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Boggle" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="assignment.Boggle" />
+    <module name="prog5" />
+    <option name="WORKING_DIRECTORY" value="$MODULE_WORKING_DIR$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
