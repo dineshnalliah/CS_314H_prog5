@@ -1,11 +1,15 @@
 package assignment;
 
 import java.awt.Point;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 public class GameManager implements BoggleGame {
+
+    private char[][] board;
+    private int numPlayers;
+    private String cubeFile;
+    private BoggleDictionary dict;
 
     @Override
     public int addWord(String word, int player) {
@@ -21,8 +25,23 @@ public class GameManager implements BoggleGame {
 
     @Override
     public char[][] getBoard() {
-        // TODO - implement me!
-        return null;
+        try {
+            Scanner scan = new Scanner(new File("cubes.txt"));
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    String s = scan.nextLine();
+                    System.out.println(s);
+                    int index = (int)(Math.random() * 6);
+                    board[i][j] = s.charAt(index);
+                    System.out.println(board[i][j]);
+                }
+            }
+             scan.close();
+        }
+        catch (FileNotFoundException e) {
+
+        }
+        return board;
     }
 
     @Override
@@ -39,14 +58,33 @@ public class GameManager implements BoggleGame {
 
     @Override
     public void newGame(int size, int numPlayers, String cubeFile, BoggleDictionary dict) throws IOException {
-        // TODO - implement me!
+        board = new char[size][size];
+        try {
+            Scanner scan = new Scanner(new File(cubeFile));
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    String s = scan.nextLine();
+                    System.out.println(s);
+                    int index = (int)(Math.random() * 6);
+                    board[i][j] = s.charAt(index);
+                    System.out.println(board[i][j]);
+                }
+            }
+            scan.close();
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        }
 
+        this.numPlayers = numPlayers;
+        this.cubeFile = cubeFile;
+        this.dict = dict;
     }
 
     @Override
-    public void setGame(char[][] board) {
-        // TODO - implement me!
-
+    public void setGame(char[][] board)  {
+        this.board = board;
+       
     }
 
     @Override
