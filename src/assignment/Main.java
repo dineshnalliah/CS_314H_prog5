@@ -1,9 +1,7 @@
 package assignment;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -15,6 +13,8 @@ public class Main {
             x.newGame(4, 0, "cubes.txt", dictionary);
             x.setGame(x.test);
 
+            x.tactic = true;
+
             char[][] b = x.getBoard();
 
             for (char[] c : b) {
@@ -24,8 +24,22 @@ public class Main {
             Collection<String> answers = x.getAllWords();
 
             System.out.println(answers);
+            System.out.println(answers.size());
 
-            
+            System.out.println(x.addWord("kites", 1));
+            x.capitalize();
+
+            for (char[] c : b) {
+                System.out.println(Arrays.toString(c));
+            }
+
+            System.out.println(x.addWord("kiwi", 1));
+            x.capitalize();
+
+            for (char[] c : b) {
+                System.out.println(Arrays.toString(c));
+            }
+
         }
         catch (IOException e) {
             System.out.println("input failed");
