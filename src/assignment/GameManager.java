@@ -30,13 +30,14 @@ public class GameManager implements BoggleGame {
     @Override
     public int addWord(String word, int player) {
         if (word.length() < 4) return 0;
+        if (playerWords[player].contains(word)) return -1; 
         int count = 0;
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
                 boolean[][] visited = new boolean[board.length][board.length];
                 List<Point> possiblePath = new ArrayList<Point>();
-                if (isValid(i, j, word, visited, possiblePath)) {
-                    count = word.length();
+                if (isValid(i, j, word, visited, possiblePath) ) {
+                    count = word.length()-3;
                     playerWords[player].add(word);
                     playerScores[player] += count;
                     break;

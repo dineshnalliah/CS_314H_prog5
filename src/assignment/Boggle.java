@@ -6,7 +6,7 @@ import java.io.*;
 
 public class Boggle {
 
-    private static volatile boolean isTimerActive = true;
+    static final int TURN_TIME = 60_000;
 
     public static void main(String[] args) {
         try {
@@ -23,36 +23,23 @@ public class Boggle {
             game.setSearchTactic(BoggleGame.SearchTactic.SEARCH_BOARD);
 
             for (int player = 0; player < numberOfPlayers; player++) {
-                Timer timer = new Timer();
-                isTimerActive = true;
 
-                TimerTask task = new TimerTask() {
-                    int countdown = 10;
-                    @Override
-                    public void run() {
-                        if (countdown > 0) {
-                            if (countdown == 5){
-                                System.out.println("5 seconds left");
-                            }
-                            
-                            countdown--;
-                        } else {
-                            timer.cancel();
-                            isTimerActive = false;
-                        }
-                    }
-                };
-
-                timer.scheduleAtFixedRate(task, 0, 1000);
-
-                while (isTimerActive) {
+                long targetTime = System.currentTimeMillis() + TURN_TIME;
+                while (System.currentTimeMillis() < targetTime) {
                     char[][] board = game.getBoard();
                     List<Point> path = game.getLastAddedWord();
                     playTurn(player, board, path, in, game);
+
+                    try {
+                        // Sleep for 500ms to yield the CPU
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt(); // Restore interrupted status
+                        break;
+                    }
                 }
                 game.resetPath();
                 waitForPlayer(in, player+1, numberOfPlayers);
-
             }
 
             showResults(numberOfPlayers, game);
@@ -68,8 +55,8 @@ public class Boggle {
     private static int getPlayerCount(Scanner in) {
         System.out.print("How many players: ");
         String input = in.next();
-        // validation
         clearConsole();
+        if (!input.matches("-?\\d+")) return 1; // make constant
         return Integer.parseInt(input);
     }
 
@@ -103,9 +90,8 @@ public class Boggle {
         int score = game.addWord(input, player);
 
         clearConsole();
-        if (score > 0) {
-            System.out.println(score + " points added");
-        }
+        if (score > 0) System.out.println(score + " points added");
+        else if (score < 0) System.out.println("already guessed");
         else System.out.println("invalid word");
 
     }
@@ -123,7 +109,6 @@ public class Boggle {
             System.out.println("Other possible words: " + answers);
             System.out.println("Computer score: " + compScore);
     }
-
 
 
     private static void clearConsole() {
