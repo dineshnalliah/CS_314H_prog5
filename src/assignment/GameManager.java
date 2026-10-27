@@ -11,7 +11,7 @@ public class GameManager implements BoggleGame {
     private BoggleDictionary dict;
     private Set<String> words;
     private int computerScore;
-    public boolean tactic;
+    private boolean tactic;
     private List<Point> path;
     private Set<String>[] playerWords;
     private int[] playerScores;
@@ -29,7 +29,6 @@ public class GameManager implements BoggleGame {
 
     @Override
     public int addWord(String word, int player) {
-        uncapitalize();
         if (word.length() < 4) return 0;
         int count = 0;
         for (int i = 0; i < board.length; i++) {
@@ -51,55 +50,33 @@ public class GameManager implements BoggleGame {
 
     // substring not very efficient, maybe opt for some other approach
     private boolean isValid(int i, int j, String s, boolean[][] visited, List<Point> path) {
-        
         if (i < 0 || i >= board.length || j < 0 || j >= board.length) return false;
         if (visited[i][j]) return false;
+        if (s.charAt(0) != board[i][j]) return false;
         if (s.length() == 1 && board[i][j] == (s.charAt(0))) { 
             path.add(new Point(i, j));
             this.path = path;
             return true;
         }
-
-
-        Point cur = new Point(i, j);
-        // do i need to wrap this around this if
-        if (s.charAt(0) == board[i][j]) {
-            visited[i][j] = true;
-            path.add(cur);
-            // figure out better way to do this
-            return isValid(i+1, j, s.substring(1), visited, path) ||
-            isValid(i-1, j, s.substring(1), visited, path) ||
-            isValid(i, j+1, s.substring(1), visited, path) ||
-            isValid(i, j-1, s.substring(1), visited, path) ||
-            isValid(i+1, j+1, s.substring(1), visited, path) || 
-            isValid(i-1, j-1, s.substring(1), visited, path) || 
-            isValid(i+1, j-1, s.substring(1), visited, path) || 
-            isValid(i-1, j+1, s.substring(1), visited, path);
+        visited[i][j] = true;
+        path.add(new Point(i, j));
+        for (int d = 0; d < 8; d++) {
+            if(isValid(i + ROW_OFFSETS[d], j + COL_OFFSETS[d], s.substring(1), visited, path)) {
+                return true;
+            }
         }
-
-        path.remove(cur);
+        path.remove(path.size()-1);
         visited[i][j] = false;
         return false;
     }
 
-    public void capitalize() {
-        for (Point p : path) {
-            board[p.x][p.y] = Character.toUpperCase(board[p.x][p.y]);
-        }
-    }
-
-    public void uncapitalize() {
-        for (Point p : path) {
-            board[p.x][p.y] = Character.toLowerCase(board[p.x][p.y]);
-        }
-    }
-
     @Override
+    // fix this
     public Collection<String> getAllWords() {
+        boolean[][] visited = new boolean[board.length][board.length];
         if(tactic) {
             for (int i = 0; i < board.length; i++) {
                 for (int j = 0; j < board.length; j++) {
-                    boolean[][] visited = new boolean[board.length][board.length];
                     boardDrivenFind(i, j, words, "", visited);
                 }
             }
@@ -108,8 +85,6 @@ public class GameManager implements BoggleGame {
         }
         return words;
     }
-
-
 
     private void boardDrivenFind(int i, int j, Set<String> words, String word, boolean[][] visited) {
 
@@ -132,26 +107,17 @@ public class GameManager implements BoggleGame {
         for (int d = 0; d < 8; d++) {
             boardDrivenFind(i + ROW_OFFSETS[d], j + COL_OFFSETS[d], words, word, visited);
         }
-        visited[i][j] = false; // <- we were missing this :( 
-        /* lets take the case where we start at y in the top left, and it searches right first to get yw, now w has been marked
-           visited. This is fine for this depth, if we look at the instance where y goes to ya first and then checks yaw, it 
-           registers yaw as not valid because w was visited. essentially the issue is that the for a search starting at some node, 
-           every character can only be used once for every possible path combined, which is problematic */
-
-        /* there is a nuance between a dfs algorithm and a backtracking algorithm, i realized this after googling a general
-           recursive find all paths algorithm. if you're curious, search up dfs vs backtracking on google or ai
-           
-           thus, i changed the name of the method to findAll rather than dfs*/ 
+        visited[i][j] = false; 
     }
 
     private void dictionaryDrivenFind() {
+        //boolean[][] visited = new boolean[board.length][board.length];
         for (String x : dict) {
             if (x.length() < 4) continue;
             for (int i = 0; i < board.length; i++) {
                 for (int j = 0; j < board.length; j++) {
                     boolean[][] visited = new boolean[board.length][board.length];
-                    List<Point> possiblePath = new ArrayList<Point>();
-                    if (isValid(i, j, x, visited, possiblePath)) {
+                    if (isValid(i, j, x, visited, new ArrayList<Point>())) {
                         words.add(x);
                     }
                 }
@@ -182,9 +148,6 @@ public class GameManager implements BoggleGame {
         return playerWords[player];
     }
 
-    public Collection<String> getAllAnswers() {
-        return words;
-    }
 
     @Override
     @SuppressWarnings ("unchecked")
@@ -211,7 +174,10 @@ public class GameManager implements BoggleGame {
         this.playerScores = new int[this.numPlayers];
         this.tactic = true;
         this.computerScore = 0;
-        
+    }
+
+    public void resetPath() {
+        path = new ArrayList<>();
     }
 
     @Override
@@ -222,12 +188,13 @@ public class GameManager implements BoggleGame {
 
     @Override
     public void setSearchTactic(SearchTactic tactic) {
-       if (tactic == SearchTactic.SEARCH_BOARD) {
-            this.tactic = true;
-       }
-       else {
-            this.tactic = false;
+       switch(tactic) {
+            case SEARCH_BOARD:
+                this.tactic = true;
+                break;
+            case SEARCH_DICT:
+                this.tactic = false;
+                break;
        }
     }
-
 }

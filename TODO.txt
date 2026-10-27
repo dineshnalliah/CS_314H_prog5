@@ -1,10 +1,20 @@
-1. Search Tactic
-2. DictionaryDrivenFind
-3. BoardDrivenFind clean up
-4. deleting extraneous methods
-5. more effective capitalization
+1. Search Tactic X
+2. DictionaryDrivenFind X
+3. BoardDrivenFind clean up X
+4. deleting extraneous methods X
+5. more effective capitalization X
 
-1. Player number
-2. Board printing
+1. Player number X
+2. Board printing X
+
+
+make methods: X
+getPlayerCount()
+waitForPlayer()
+playTurn()
+printBoard()
+showResults()
+
+readInTime() 
 
 TESTING
