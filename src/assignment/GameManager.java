@@ -10,6 +10,7 @@ public class GameManager implements BoggleGame {
     private int numPlayers;
     private BoggleDictionary dict;
     private Set<String> words;
+    private int computerScore;
     public boolean tactic;
     private List<Point> path;
     private Set<String>[] playerWords;
@@ -48,22 +49,24 @@ public class GameManager implements BoggleGame {
         return count;
     }
 
+    // substring not very efficient, maybe opt for some other approach
     private boolean isValid(int i, int j, String s, boolean[][] visited, List<Point> path) {
         
         if (i < 0 || i >= board.length || j < 0 || j >= board.length) return false;
         if (visited[i][j]) return false;
         if (s.length() == 1 && board[i][j] == (s.charAt(0))) { 
             path.add(new Point(i, j));
-            System.out.println(path);
             this.path = path;
             return true;
         }
 
 
         Point cur = new Point(i, j);
+        // do i need to wrap this around this if
         if (s.charAt(0) == board[i][j]) {
             visited[i][j] = true;
             path.add(cur);
+            // figure out better way to do this
             return isValid(i+1, j, s.substring(1), visited, path) ||
             isValid(i-1, j, s.substring(1), visited, path) ||
             isValid(i, j+1, s.substring(1), visited, path) ||
@@ -73,6 +76,7 @@ public class GameManager implements BoggleGame {
             isValid(i+1, j-1, s.substring(1), visited, path) || 
             isValid(i-1, j+1, s.substring(1), visited, path);
         }
+
         path.remove(cur);
         visited[i][j] = false;
         return false;
@@ -80,13 +84,13 @@ public class GameManager implements BoggleGame {
 
     public void capitalize() {
         for (Point p : path) {
-            board[p.x][p.y] = (char)((int)board[p.x][p.y] - 32);
+            board[p.x][p.y] = Character.toUpperCase(board[p.x][p.y]);
         }
     }
 
-    private void uncapitalize() {
+    public void uncapitalize() {
         for (Point p : path) {
-            board[p.x][p.y] = (char)((int)board[p.x][p.y] + 32);
+            board[p.x][p.y] = Character.toLowerCase(board[p.x][p.y]);
         }
     }
 
@@ -111,10 +115,17 @@ public class GameManager implements BoggleGame {
 
         if (i < 0 || i >= board.length || j < 0 || j >= board.length) return;
         if (visited[i][j]) return;
+        
 
         word += board[i][j];
 
-        if (dict.contains(word) && word.length() >= 4) words.add(word);
+        if (dict.contains(word) && word.length() >= 4) {
+            for (int ind = 0; ind < numPlayers; ind++) {
+                if (playerWords[ind].contains(word)) return;
+            }
+            computerScore += word.length();
+            words.add(word);
+        }
         if (!dict.isPrefix(word)) return;
 
         visited[i][j] = true;
@@ -163,6 +174,18 @@ public class GameManager implements BoggleGame {
         return playerScores;
     }
 
+    public int getComputerScore() {
+        return computerScore;
+    }
+
+    public Set<String> getWords(int player) {
+        return playerWords[player];
+    }
+
+    public Collection<String> getAllAnswers() {
+        return words;
+    }
+
     @Override
     @SuppressWarnings ("unchecked")
     public void newGame(int size, int numPlayers, String cubeFile, BoggleDictionary dict) throws IOException {
@@ -181,11 +204,13 @@ public class GameManager implements BoggleGame {
         this.dict = dict;
         this.words = new HashSet<>();
         this.path = new ArrayList<Point>();
-        this.playerWords = (Set[]) new Object[numPlayers];
+        this.playerWords = new Set[numPlayers];
         for (int i = 0; i < numPlayers; i++) {
             this.playerWords[i] = new HashSet<String>();
         }
         this.playerScores = new int[this.numPlayers];
+        this.tactic = true;
+        this.computerScore = 0;
         
     }
 

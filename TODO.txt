@@ -1,0 +1,10 @@
+1. Search Tactic
+2. DictionaryDrivenFind
+3. BoardDrivenFind clean up
+4. deleting extraneous methods
+5. more effective capitalization
+
+1. Player number
+2. Board printing
+
+TESTING

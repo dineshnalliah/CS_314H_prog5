@@ -6,44 +6,62 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
 
-        try {
-            GameManager x = new GameManager();
-            GameDictionary dictionary = new GameDictionary();
-            dictionary.loadDictionary("words.txt");
-            x.newGame(4, 0, "cubes.txt", dictionary);
-            x.setGame(x.test);
+        Timer timer = new Timer();
 
-            x.tactic = true;
+        TimerTask task = new TimerTask() {
+            int countdown = 60;
 
-            char[][] b = x.getBoard();
-
-            for (char[] c : b) {
-                System.out.println(Arrays.toString(c));
+            @Override
+            public void run() {
+                if (countdown > 0) {
+                    System.out.println("Time remaining: " + countdown + " seconds");
+                    countdown--;
+                } else {
+                    timer.cancel();
+                }
             }
+        };
 
-            Collection<String> answers = x.getAllWords();
+        timer.scheduleAtFixedRate(task, 0, 1000);
 
-            System.out.println(answers);
-            System.out.println(answers.size());
+        // try {
+        //     GameManager x = new GameManager();
+        //     GameDictionary dictionary = new GameDictionary();
+        //     dictionary.loadDictionary("words.txt");
+        //     x.newGame(4, 0, "cubes.txt", dictionary);
+        //     x.setGame(x.test);
 
-            System.out.println(x.addWord("kites", 1));
-            x.capitalize();
+        //     x.tactic = true;
 
-            for (char[] c : b) {
-                System.out.println(Arrays.toString(c));
-            }
+        //     char[][] b = x.getBoard();
 
-            System.out.println(x.addWord("kiwi", 1));
-            x.capitalize();
+        //     for (char[] c : b) {
+        //         System.out.println(Arrays.toString(c));
+        //     }
 
-            for (char[] c : b) {
-                System.out.println(Arrays.toString(c));
-            }
+        //     Collection<String> answers = x.getAllWords();
 
-        }
-        catch (IOException e) {
-            System.out.println("input failed");
-        }
+        //     System.out.println(answers);
+        //     System.out.println(answers.size());
+
+        //     System.out.println(x.addWord("kites", 1));
+        //     x.capitalize();
+
+        //     for (char[] c : b) {
+        //         System.out.println(Arrays.toString(c));
+        //     }
+
+        //     System.out.println(x.addWord("kiwi", 1));
+        //     x.capitalize();
+
+        //     for (char[] c : b) {
+        //         System.out.println(Arrays.toString(c));
+        //     }
+
+        // }
+        // catch (IOException e) {
+        //     System.out.println("input failed");
+        // }
         
 
         
