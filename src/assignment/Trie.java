@@ -38,6 +38,9 @@ public class Trie {
         for (int i = 0; i < word.length(); i++) {
             char c = word.charAt(i);
 
+            // for this fix and the bottom fix, prevents game from crashing if odd input from player
+            // if(c < 'a' || c > 'z') return false;
+
             if (current.children[c - 'a'] == null) {
                 return false;
             }
@@ -50,6 +53,9 @@ public class Trie {
         Node current = root;
         for (int i = 0; i < prefix.length(); i++) {
             char c = prefix.charAt(i);
+
+            // add this
+            // if(c < 'a' || c > 'z') return false;
 
             if (current.children[c - 'a'] == null) {
                 return false;

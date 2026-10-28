@@ -31,6 +31,15 @@ public class GameManager implements BoggleGame {
     public int addWord(String word, int player) {
         if (word.length() < 4) return 0;
         if (playerWords[player].contains(word)) return -1; 
+
+        // add this: null check for word, player typing capitals would be marked wrong, addWord never checks dictionary
+        // also return 0 since interface says addWord returns points earned and a repeated word returns 0 which other people would think is the expected output
+        // if (word == null) return 0;
+        // word = word.toLowerCase();
+        // if (word.length() < 4) return 0;
+        // if (!dict.contains(word)) return 0;
+        // if (playerWords[player].contains(word)) return 0;
+
         int count = 0;
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
@@ -38,6 +47,8 @@ public class GameManager implements BoggleGame {
                 List<Point> possiblePath = new ArrayList<Point>();
                 if (isValid(i, j, word, visited, possiblePath) ) {
                     count = word.length()-3;
+                    // add this
+                    // this.path = possiblePath;
                     playerWords[player].add(word);
                     playerScores[player] += count;
                     break;
@@ -56,7 +67,7 @@ public class GameManager implements BoggleGame {
         if (s.charAt(0) != board[i][j]) return false;
         if (s.length() == 1 && board[i][j] == (s.charAt(0))) { 
             path.add(new Point(i, j));
-            this.path = path;
+            //this.path = path; take this out
             return true;
         }
         visited[i][j] = true;
@@ -74,6 +85,9 @@ public class GameManager implements BoggleGame {
     @Override
     // fix this
     public Collection<String> getAllWords() {
+        // these fields are never cleared so calling getAllWords() twice would double the score
+        // words = new HashSet<>();
+        // computerScore = 0;
         boolean[][] visited = new boolean[board.length][board.length];
         if(tactic) {
             for (int i = 0; i < board.length; i++) {
@@ -99,9 +113,16 @@ public class GameManager implements BoggleGame {
             for (int ind = 0; ind < numPlayers; ind++) {
                 if (playerWords[ind].contains(word)) return;
             }
-            computerScore += word.length();
+            computerScore += word.length() - 3;
             words.add(word);
         }
+
+        // above code exits whole loop early (so if kite was found by the player kites would not be found by the computer)
+        // prevents double counting if a word can be found two ways on the board
+        // if (dict.contains(word) && word.length() >= 4 && !foundByPlayer(word)) {
+        //     if (words.add(word)) computerScore += word.length() - 3;
+        // }
+
         if (!dict.isPrefix(word)) return;
 
         visited[i][j] = true;
@@ -123,8 +144,29 @@ public class GameManager implements BoggleGame {
                     }
                 }
             }
+
+            // skips word found by player, adds to computerScore, stops searching once found flag is located
+            // if (x.length() < 4 || foundByPlayer(x)) continue;
+            // boolean found = false;
+            // for (int i = 0; i < board.length && !found; i++) {
+            //     for (int j = 0; j < board.length && !found; j++) {
+            //         boolean[][] visited = new boolean[board.length][board.length];
+            //         if (isValid(i, j, x, visited, new ArrayList<Point>())) {
+            //             words.add(x);
+            //             computerScore += x.length() - 3;
+            //             found = true;
+            //         }
+            //     }
+            // }
         }
     }
+
+    // private boolean foundByPlayer(String word) {
+    //     for (int x = 0; x < numPlayers; x++) {
+    //         if (playerWords[x].contains(word)) return true;
+    //     }
+    //     return false;
+    // }
 
     @Override
     public char[][] getBoard() {
@@ -164,10 +206,27 @@ public class GameManager implements BoggleGame {
         }
         scan.close();
 
+        // cubes need to be randomly shuffled around the grid too
+        // List<String> cubes = new ArrayList<>();
+        // Scanner scan = new Scanner(new File(cubeFile));
+        // while (scan.hasNextLine()) {
+        //     String line = scan.nextLine().trim().toLowerCase();
+        //     if (!line.isEmpty()) cubes.add(line);
+        // }
+        // scan.close();
+        // Collections.shuffle(cubes);
+        // for (int i = 0; i < size; i++) {
+        //     for (int j = 0; j < size; j++) {
+        //         String s = cubes.get(i * size + j);
+        //         board[i][j] = s.charAt((int)(Math.random() * s.length()));
+        //     }
+        // }
+
         this.numPlayers = numPlayers;
         this.dict = dict;
         this.words = new HashSet<>();
-        this.path = new ArrayList<Point>();
+        this.path = new ArrayList<Point>(); 
+        // this.path = null; (at the start of the game w/ no words null should be returned)
         this.playerWords = new Set[numPlayers];
         for (int i = 0; i < numPlayers; i++) {
             this.playerWords[i] = new HashSet<String>();
@@ -179,23 +238,37 @@ public class GameManager implements BoggleGame {
 
     public void resetPath() {
         path = new ArrayList<>();
+        // interface says null should be returned when no words have been added (which resetPath does)
+        // path = null;
     }
 
     @Override
     public void setGame(char[][] board)  {
         this.board = board;
-       
+
+        // interface says that setGame sets all scores to zero and word lists to empty
+        /*
+        for (int i = 0; i < numPlayers; i++) {
+            playerWords[i] = new HashSet<>();
+        }
+        playerScores = new int[numPlayers];
+        path = null;
+        words = new HashSet<>();
+        computerScore = 0;
+        */
     }
 
     @Override
     public void setSearchTactic(SearchTactic tactic) {
-       switch(tactic) {
-            case SEARCH_BOARD:
-                this.tactic = true;
-                break;
-            case SEARCH_DICT:
-                this.tactic = false;
-                break;
-       }
+        // null check
+        //if(tactic == null) tactic = SEARCH_DEFAULT;
+        switch(tactic) {
+                case SEARCH_BOARD:
+                    this.tactic = true;
+                    break;
+                case SEARCH_DICT:
+                    this.tactic = false;
+                    break;
+        }
     }
 }
