@@ -71,10 +71,7 @@ public class Boggle {
     private static void printBoard(char[][] board, List<Point> path) {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                // replace line below
-                // because path is now set to null instead of an empty list
-                // if (path != null && path.contains(new point(i, j))) {
-                if (!path.isEmpty() && path.contains(new Point(i, j))) {
+                if (path != null && path.contains(new Point(i, j))) {
                     System.out.print(Character.toUpperCase(board[i][j]) + " ");
                 } else {
                     System.out.print(board[i][j] + " ");
@@ -91,14 +88,12 @@ public class Boggle {
         String input = in.next();
 
         // add this: addWord now returns 0 for repeats
-        // boolean alreadyGuessed = game.getWords(player).contains(input.toLowerCase());
+        boolean alreadyGuessed = game.getWords(player).contains(input.toLowerCase());
         int score = game.addWord(input, player);
 
         clearConsole();
         if (score > 0) System.out.println(score + " points added");
-        // replace line below
-        // else if (alreadyGuessed) System.out.println("already guessed");
-        else if (score < 0) System.out.println("already guessed");
+        else if (alreadyGuessed) System.out.println("already guessed");
         else System.out.println("invalid word");
 
     }
