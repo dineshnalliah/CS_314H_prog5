@@ -6,11 +6,11 @@ import java.io.*;
 
 public class Boggle {
 
-    static final int TURN_TIME = 60_000;
+    static final int TURN_TIME = 15_000;
 
     public static void main(String[] args) {
         try {
-            Scanner in = new Scanner(System.in);
+            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             
             int numberOfPlayers = getPlayerCount(in);
 
@@ -28,14 +28,11 @@ public class Boggle {
                 while (System.currentTimeMillis() < targetTime) {
                     char[][] board = game.getBoard();
                     List<Point> path = game.getLastAddedWord();
-                    playTurn(player, board, path, in, game);
-
+                    if (!playTurn(player, board, path, in, game, targetTime)) break;
                     try {
-                        // Sleep for 500ms to yield the CPU
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt(); // Restore interrupted status
-                        break;
+                        Thread.currentThread().interrupt();
                     }
                 }
                 game.resetPath();
@@ -52,20 +49,19 @@ public class Boggle {
         
     }
 
-    private static int getPlayerCount(Scanner in) {
-        System.out.print("How many players: ");
-        String input = in.next();
+    private static int getPlayerCount(BufferedReader in) throws IOException {
+        System.out.print("How many players (default 1): ");
+        String input = in.readLine();
         clearConsole();
-        if (!input.matches("-?\\d+")) return 1; // make constant
+        if (!input.matches("\\d+")) return 1; // make constant
         return Integer.parseInt(input);
     }
 
-    private static void waitForPlayer(Scanner in, int player, int totalPlayers) {
+    private static void waitForPlayer(BufferedReader in, int player, int totalPlayers) throws IOException {
         clearConsole();
         if (player == totalPlayers) return;
         System.out.println("Player " + player + "\'s turn, press ENTER to confirm: ");
-        in.nextLine();
-        in.nextLine();
+        in.readLine();
     }
 
     private static void printBoard(char[][] board, List<Point> path) {
@@ -81,11 +77,12 @@ public class Boggle {
         } // make constant SIZE
     }
 
-    private static void playTurn(int player, char[][] board, List<Point> path, Scanner in, GameManager game) {
+    private static boolean playTurn(int player, char[][] board, List<Point> path, BufferedReader in, GameManager game, long deadline) throws IOException {
         printBoard(board, path);
 
-        System.out.print("Player " + player + " guesses: ");
-        String input = in.next();
+        System.out.print("Player " + (player+1) + " guesses: ");
+        String input = in.readLine();
+        if (input == null) return false;
 
         // add this: addWord now returns 0 for repeats
         boolean alreadyGuessed = game.getWords(player).contains(input.toLowerCase());
@@ -95,13 +92,14 @@ public class Boggle {
         if (score > 0) System.out.println(score + " points added");
         else if (alreadyGuessed) System.out.println("already guessed");
         else System.out.println("invalid word");
+        return true;
 
     }
 
     private static void showResults(int totalPlayers, GameManager game) {
         clearConsole();
         for (int j = 0; j < totalPlayers; j++) {
-                    System.out.println("Player " + j + ": " + game.getScores()[j]);
+                    System.out.println("Player " + (j+1) + ": " + game.getScores()[j]);
                     System.out.println("Words: " + game.getWords(j));
                     System.out.println();
                 }
@@ -119,6 +117,56 @@ public class Boggle {
         }
     }
 
+    // private static String readLine(BufferedReader in, long deadline) throws IOException {
+    //     StringBuilder line = new StringBuilder();
+
+    //     while (System.currentTimeMillis() < deadline) {
+    //         // Only read when input is available
+    //         while (System.currentTimeMillis() < deadline && in.ready()) {
+    //             int ch = in.read();
+
+    //             // Check whether the time ran out
+    //             if (System.currentTimeMillis() >= deadline) {
+    //                 return null;
+    //             }
+
+    //             // End of input
+    //             if (ch == -1) {
+    //                 return line.length() == 0 ? null : line.toString();
+    //             }
+
+    //             // User pressed Enter
+    //             if (ch == '\n') {
+    //                 int length = line.length();
+
+    //                 // Remove the '\r' from Windows-style line endings
+    //                 if (length > 0 && line.charAt(length - 1) == '\r') {
+    //                     line.setLength(length - 1);
+    //                 }
+
+    //                 return line.toString();
+    //             }
+
+    //             line.append((char) ch);
+    //         }
+
+    //         // Stop immediately when the deadline is reached
+    //         long remaining = deadline - System.currentTimeMillis();
+    //         if (remaining <= 0) {
+    //             return null;
+    //         }
+
+    //         // Briefly pause instead of continuously checking the input
+    //         try {
+    //             Thread.sleep(Math.min(10L, remaining));
+    //         } catch (InterruptedException e) {
+    //             Thread.currentThread().interrupt();
+    //             return null;
+    //         }
+    //     }
+
+    //     return null;
+    // }
 }
 
 
