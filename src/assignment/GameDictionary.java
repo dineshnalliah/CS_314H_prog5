@@ -1,20 +1,22 @@
 package assignment;
 
-import java.io.FileNotFoundException;
 import java.io.*;
 import java.util.*;
 
 public class GameDictionary implements BoggleDictionary {
 
     private Trie dictionary;
+    private boolean isLoaded;
 
     @Override
     public boolean contains(String word) {
+        if (!isLoaded) return false;
         return dictionary.search(word);
     }
 
     @Override
     public boolean isPrefix(String prefix) {
+        if (!isLoaded) return false;
         return dictionary.startsWith(prefix);
     }
 
@@ -26,6 +28,7 @@ public class GameDictionary implements BoggleDictionary {
             while (in.hasNext()) {
                 dictionary.insert(in.next().toLowerCase());
             }
+            isLoaded = true;
             in.close();
         }
         catch (FileNotFoundException e) {
@@ -36,6 +39,7 @@ public class GameDictionary implements BoggleDictionary {
 
     @Override
     public Iterator<String> iterator() {
+        if (!isLoaded) return new DictIterator(null);
         return new DictIterator(dictionary.getRoot());
     }
 

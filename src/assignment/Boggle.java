@@ -6,7 +6,7 @@ import java.io.*;
 
 public class Boggle {
 
-    static final int TURN_TIME = 15_000;
+    static final int TURN_TIME = 5_000;
 
     public static void main(String[] args) {
         try {
@@ -20,7 +20,8 @@ public class Boggle {
             dictionary.loadDictionary("words.txt");
 
             game.newGame(4, numberOfPlayers, "cubes.txt", dictionary);
-            game.setSearchTactic(BoggleGame.SearchTactic.SEARCH_BOARD);
+            game.setGame(Main.test);
+            game.setSearchTactic(BoggleGame.SearchTactic.SEARCH_DICT);
 
             for (int player = 0; player < numberOfPlayers; player++) {
 
@@ -104,9 +105,14 @@ public class Boggle {
                     System.out.println();
                 }
             System.out.println("\n\n");
-            Collection<String> answers = game.getAllWords();
+
+            Collection<String> all = game.getAllWords();
+            Collection<String> answers = game.getComputerWords();
+
             int compScore = game.getComputerScore();
-            System.out.println("Other possible words: " + answers);
+
+            System.out.println("Words on board: " + all.size());
+            System.out.println("Words not found players (Computer Words): " + answers);
             System.out.println("Computer score: " + compScore);
     }
 
@@ -117,56 +123,6 @@ public class Boggle {
         }
     }
 
-    // private static String readLine(BufferedReader in, long deadline) throws IOException {
-    //     StringBuilder line = new StringBuilder();
-
-    //     while (System.currentTimeMillis() < deadline) {
-    //         // Only read when input is available
-    //         while (System.currentTimeMillis() < deadline && in.ready()) {
-    //             int ch = in.read();
-
-    //             // Check whether the time ran out
-    //             if (System.currentTimeMillis() >= deadline) {
-    //                 return null;
-    //             }
-
-    //             // End of input
-    //             if (ch == -1) {
-    //                 return line.length() == 0 ? null : line.toString();
-    //             }
-
-    //             // User pressed Enter
-    //             if (ch == '\n') {
-    //                 int length = line.length();
-
-    //                 // Remove the '\r' from Windows-style line endings
-    //                 if (length > 0 && line.charAt(length - 1) == '\r') {
-    //                     line.setLength(length - 1);
-    //                 }
-
-    //                 return line.toString();
-    //             }
-
-    //             line.append((char) ch);
-    //         }
-
-    //         // Stop immediately when the deadline is reached
-    //         long remaining = deadline - System.currentTimeMillis();
-    //         if (remaining <= 0) {
-    //             return null;
-    //         }
-
-    //         // Briefly pause instead of continuously checking the input
-    //         try {
-    //             Thread.sleep(Math.min(10L, remaining));
-    //         } catch (InterruptedException e) {
-    //             Thread.currentThread().interrupt();
-    //             return null;
-    //         }
-    //     }
-
-    //     return null;
-    // }
 }
 
 

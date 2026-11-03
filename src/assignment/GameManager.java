@@ -10,18 +10,12 @@ public class GameManager implements BoggleGame {
     private int numPlayers;
     private BoggleDictionary dict;
     private Set<String> words;
+    private Set<String> computerWords;
     private int computerScore;
     private boolean tactic;
     private List<Point> path;
     private Set<String>[] playerWords;
     private int[] playerScores;
-
-    public final char[][] test = {
-        {'y', 'w', 'e', 's'},
-        {'a', 't', 'w', 'i'},
-        {'k', 'i', 'p' ,'i'},
-        {'v', 'z', 'q', 'j'}
-    };
 
     private final int[] ROW_OFFSETS = {-1, -1, -1, 0, 0, 1, 1, 1};
     private final int[] COL_OFFSETS = {-1, 0, 1, -1, 1, -1, 0, 1};
@@ -29,8 +23,6 @@ public class GameManager implements BoggleGame {
 
     @Override
     public int addWord(String word, int player) {
-        // add this: null check for word, player typing capitals would be marked wrong, addWord never checks dictionary
-        // also return 0 since interface says addWord returns points earned and a repeated word returns 0 which other people would think is the expected output
         if (word == null) return 0;
         word = word.toLowerCase();
         if (word.length() < 4) return 0;
@@ -56,7 +48,6 @@ public class GameManager implements BoggleGame {
         return count;
     }
 
-    // substring not very efficient, maybe opt for some other approach
     private boolean isValid(int i, int j, String s, boolean[][] visited, List<Point> path) {
         if (i < 0 || i >= board.length || j < 0 || j >= board.length) return false;
         if (visited[i][j]) return false;
@@ -78,9 +69,7 @@ public class GameManager implements BoggleGame {
     }
 
     @Override
-    // fix this
     public Collection<String> getAllWords() {
-        // these fields are never cleared so calling getAllWords() twice would double the score
         words = new HashSet<>();
         computerScore = 0;
         boolean[][] visited = new boolean[board.length][board.length];
@@ -100,13 +89,17 @@ public class GameManager implements BoggleGame {
 
         if (i < 0 || i >= board.length || j < 0 || j >= board.length) return;
         if (visited[i][j]) return;
-        
 
         word += board[i][j];
 
         // prevents double counting if a word can be found two ways on the board
-        if (dict.contains(word) && word.length() >= 4 && !foundByPlayer(word)) {
-            if (words.add(word)) computerScore += word.length() - 3;
+        if (dict.contains(word) && word.length() >= 4) {
+            words.add(word);
+            if (!foundByPlayer(word)) { 
+                computerScore += word.length() - 3;
+                computerWords.add(word);
+            }
+            
         }
 
         if (!dict.isPrefix(word)) return;
@@ -120,13 +113,18 @@ public class GameManager implements BoggleGame {
 
     private void dictionaryDrivenFind() {
         for (String x : dict) {
-            if (x.length() < 4 || foundByPlayer(x)) continue;
+            if (x.length() < 4) continue;
+            if (foundByPlayer(x)) {
+                words.add(x);
+                continue;
+            }
             boolean found = false;
             for (int i = 0; i < board.length && !found; i++) {
                 for (int j = 0; j < board.length && !found; j++) {
                     boolean[][] visited = new boolean[board.length][board.length];
                     if (isValid(i, j, x, visited, new ArrayList<Point>())) {
                         words.add(x);
+                        computerWords.add(x);
                         computerScore += x.length() - 3;
                         found = true;
                     }
@@ -161,6 +159,10 @@ public class GameManager implements BoggleGame {
         return computerScore;
     }
 
+    public Set<String> getComputerWords() {
+        return computerWords;
+    }
+
     public Set<String> getWords(int player) {
         return playerWords[player];
     }
@@ -191,6 +193,7 @@ public class GameManager implements BoggleGame {
         this.path = new ArrayList<Point>(); 
         this.path = null;
         this.playerWords = new Set[numPlayers];
+        this.computerWords = new HashSet<>();
         for (int i = 0; i < numPlayers; i++) {
             this.playerWords[i] = new HashSet<String>();
         }
@@ -206,6 +209,11 @@ public class GameManager implements BoggleGame {
 
     @Override
     public void setGame(char[][] board)  {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                board[i][j] = Character.toLowerCase(board[i][j]);
+            }
+        }
         this.board = board;
         for (int i = 0; i < numPlayers; i++) {
             playerWords[i] = new HashSet<>();

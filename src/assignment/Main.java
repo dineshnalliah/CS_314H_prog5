@@ -4,6 +4,13 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
+
+    public static final char[][] test = {
+        {'y', 'w', 'e', 's'},
+        {'a', 't', 'w', 'i'},
+        {'k', 'i', 'p' ,'i'},
+        {'v', 'z', 'q', 'j'}
+    };
     public static void main(String[] args) {
 
         long targetTime = System.currentTimeMillis() + 10_000; // 10 seconds from now
@@ -26,7 +33,7 @@ public class Main {
             GameDictionary dictionary = new GameDictionary();
             dictionary.loadDictionary("words.txt");
             x.newGame(4, 0, "cubes.txt", dictionary);
-            x.setGame(x.test);
+            x.setGame(test);
 
             x.setSearchTactic(BoggleGame.SearchTactic.SEARCH_BOARD);
 
