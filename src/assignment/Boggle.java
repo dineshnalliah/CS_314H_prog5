@@ -5,7 +5,7 @@ import java.awt.Point;
 import java.io.*;
 
 public class Boggle {
-1
+    
     static final int TURN_TIME = 60_000;
     static final int BOARD_SIZE = 4;
     static final String QUIT = "q";
