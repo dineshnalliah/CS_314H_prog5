@@ -22,19 +22,16 @@ public class GameDictionary implements BoggleDictionary {
 
     @Override
     public void loadDictionary(String filename) throws IOException {
-        dictionary = new Trie();
-        try {
-            Scanner in = new Scanner(new File(filename));
+        Trie newDictionary = new Trie();
+        // a missing file throws FileNotFoundException (an IOException) to the caller
+        try (Scanner in = new Scanner(new File(filename))) {
             while (in.hasNext()) {
-                dictionary.insert(in.next().toLowerCase());
+                String word = in.next().toLowerCase();
+                if (word.matches("[a-z]+")) newDictionary.insert(word);
             }
-            isLoaded = true;
-            in.close();
         }
-        catch (FileNotFoundException e) {
-            System.out.println("file not found");
-        }
-
+        dictionary = newDictionary;
+        isLoaded = true;
     }
 
     @Override

@@ -23,7 +23,7 @@ public class GameManager implements BoggleGame {
 
     @Override
     public int addWord(String word, int player) {
-        if (word == null) return 0;
+        if (word == null || player < 0 || player >= numPlayers) return 0;
         word = word.toLowerCase();
         if (word.length() < 4) return 0;
         if (!dict.contains(word)) return 0;
@@ -71,6 +71,7 @@ public class GameManager implements BoggleGame {
     @Override
     public Collection<String> getAllWords() {
         words = new HashSet<>();
+        computerWords = new HashSet<>();
         computerScore = 0;
         boolean[][] visited = new boolean[board.length][board.length];
         if(tactic) {
@@ -93,8 +94,8 @@ public class GameManager implements BoggleGame {
         word += board[i][j];
 
         // prevents double counting if a word can be found two ways on the board
-        if (dict.contains(word) && word.length() >= 4) {
-            words.add(word);
+        if (dict.contains(word) && word.length() >= 4 && words.add(word)) {
+            // words.add(word);
             if (!foundByPlayer(word)) { 
                 computerScore += word.length() - 3;
                 computerWords.add(word);
@@ -190,7 +191,6 @@ public class GameManager implements BoggleGame {
         this.numPlayers = numPlayers;
         this.dict = dict;
         this.words = new HashSet<>();
-        this.path = new ArrayList<Point>(); 
         this.path = null;
         this.playerWords = new Set[numPlayers];
         this.computerWords = new HashSet<>();
@@ -209,12 +209,14 @@ public class GameManager implements BoggleGame {
 
     @Override
     public void setGame(char[][] board)  {
+        // copy so later changes to the caller's array can't change our board
+        char[][] copy = new char[board.length][board.length];
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
-                board[i][j] = Character.toLowerCase(board[i][j]);
+                copy[i][j] = Character.toLowerCase(board[i][j]);
             }
         }
-        this.board = board;
+        this.board = copy;
         for (int i = 0; i < numPlayers; i++) {
             playerWords[i] = new HashSet<>();
         }
@@ -222,6 +224,7 @@ public class GameManager implements BoggleGame {
         path = null;
         words = new HashSet<>();
         computerScore = 0;
+        computerWords = new HashSet<>();
     }
 
     @Override
