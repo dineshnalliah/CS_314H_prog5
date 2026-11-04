@@ -5,7 +5,7 @@ import java.awt.Point;
 import java.io.*;
 
 public class Boggle {
-    
+
     static final int TURN_TIME = 60_000;
     static final int BOARD_SIZE = 4;
     static final String QUIT = "q";
@@ -47,6 +47,7 @@ public class Boggle {
         }
     }
 
+    // Prompts the player if they want to play again
     private static boolean askPlayAgain(BufferedReader in) throws IOException {
         System.out.print("Play again? (y/n): ");
         String input = in.readLine();
@@ -54,6 +55,7 @@ public class Boggle {
         return input != null && input.trim().equalsIgnoreCase("y");
     }
 
+    // Reads in how many players based off of user input
     private static int getPlayerCount(BufferedReader in) throws IOException {
         System.out.print("How many players (default 1): ");
         String input = in.readLine();
@@ -64,6 +66,7 @@ public class Boggle {
         return Integer.parseInt(input.trim());
     }
 
+    // If multiplayer, waits for the next player to press enter before starting the game
     private static void waitForPlayer(BufferedReader in, int player, int totalPlayers) throws IOException {
         clearConsole();
         if (player == totalPlayers) return;
@@ -71,6 +74,7 @@ public class Boggle {
         in.readLine();
     }
 
+    // Prints out board with specified word found in uppercase
     private static void printBoard(char[][] board, List<Point> path) {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
@@ -84,6 +88,7 @@ public class Boggle {
         }
     }
 
+    // Gameplay for one turn
     private static boolean playTurn(int player, char[][] board, List<Point> path, BufferedReader in, GameManager game, long deadline) throws IOException {
         printBoard(board, path);
 
@@ -113,6 +118,7 @@ public class Boggle {
 
     }
 
+    // After turn is done, display player and computer results
     private static void showResults(int totalPlayers, GameManager game) {
         clearConsole();
         for (int j = 0; j < totalPlayers; j++) {
@@ -133,6 +139,7 @@ public class Boggle {
     }
 
 
+    // "Clears" the console by adding new lines for user readability
     private static void clearConsole() {
         for (int i = 0; i < 50; i++) {
             System.out.println();

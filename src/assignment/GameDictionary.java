@@ -9,18 +9,21 @@ public class GameDictionary implements BoggleDictionary {
     private boolean isLoaded;
 
     @Override
+    // Tests whether a String is a word in this dictionary.
     public boolean contains(String word) {
         if (!isLoaded) return false;
         return dictionary.search(word);
     }
 
     @Override
+    // Tests whether a String is a word in this dictionary.
     public boolean isPrefix(String prefix) {
         if (!isLoaded) return false;
         return dictionary.startsWith(prefix);
     }
 
     @Override
+    // Adds words from a file to this dictionary. The file should contain one word per line, with the words in ascending lexicographic order.
     public void loadDictionary(String filename) throws IOException {
         Trie newDictionary = new Trie();
         // a missing file throws FileNotFoundException (an IOException) to the caller
@@ -41,7 +44,6 @@ public class GameDictionary implements BoggleDictionary {
     }
 
     private class DictIterator implements Iterator<String> {
-
         private class IterState {
             final Node node;
             final String word;

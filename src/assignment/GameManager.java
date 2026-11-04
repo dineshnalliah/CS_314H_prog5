@@ -22,6 +22,9 @@ public class GameManager implements BoggleGame {
 
 
     @Override
+    // Adds a word to the player's list and returns the point value of the word. 
+    // If the word is invalid or the player cannot add the word, it is worth zero points and is not actually added to the player's list. 
+    // Player should not be able to add the same word multiple times.
     public int addWord(String word, int player) {
         if (word == null || player < 0 || player >= numPlayers) return 0;
         word = word.toLowerCase();
@@ -69,6 +72,7 @@ public class GameManager implements BoggleGame {
     }
 
     @Override
+    // Returns a collection containing all valid words in the current Boggle board. Uses the current search tactic.
     public Collection<String> getAllWords() {
         words = new HashSet<>();
         computerWords = new HashSet<>();
@@ -86,6 +90,7 @@ public class GameManager implements BoggleGame {
         return words;
     }
 
+    // Checks if the given word is found on the board
     private void boardDrivenFind(int i, int j, Set<String> words, String word, boolean[][] visited) {
 
         if (i < 0 || i >= board.length || j < 0 || j >= board.length) return;
@@ -112,6 +117,7 @@ public class GameManager implements BoggleGame {
         visited[i][j] = false; 
     }
 
+    // Checks if any word in the dictionary is located on the board
     private void dictionaryDrivenFind() {
         for (String x : dict) {
             if (x.length() < 4) continue;
@@ -171,6 +177,7 @@ public class GameManager implements BoggleGame {
 
     @Override
     @SuppressWarnings ("unchecked")
+    // Creates a new Boggle game using a size x size board and the cubes specified in the file cubeFile.
     public void newGame(int size, int numPlayers, String cubeFile, BoggleDictionary dict) throws IOException {
         this.board = new char[size][size];
         List<String> cubes = new ArrayList<>();
@@ -208,6 +215,9 @@ public class GameManager implements BoggleGame {
     }
 
     @Override
+    // Sets the game board to the given board (also in row-major order, sets all player scores and lists to zero/empty. 
+    // Very useful for debugging or playing a previous game. The board must be square. 
+    // Other game-related parameters (like the dictionary) should be left as is.
     public void setGame(char[][] board)  {
         // copy so later changes to the caller's array can't change our board
         char[][] copy = new char[board.length][board.length];
@@ -228,6 +238,8 @@ public class GameManager implements BoggleGame {
     }
 
     @Override
+    // Sets the search tactic (used by getAllWords()) to the given tactic. Valid tactics are defined earlier. 
+    // The default tactic should be SEARCH_DEFAULT. An invalid tactic resets to default.
     public void setSearchTactic(SearchTactic tactic) {
         if(tactic == null) tactic = SEARCH_DEFAULT;
         switch(tactic) {
